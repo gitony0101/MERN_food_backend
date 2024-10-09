@@ -1,4 +1,3 @@
-import { auth } from 'express-oauth2-jwt-bearer';
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import User from '../models/user';
@@ -12,14 +11,6 @@ declare global {
   }
 }
 
-// JWT 检查中间件
-export const jwtCheck = auth({
-  audience: process.env.AUTH0_AUDIENCE,
-  issuerBaseURL: process.env.AUTH0_ISSUER_BASE_URL,
-  tokenSigningAlg: 'RS256',
-});
-
-// JWT 解析中间件
 export const jwtParse = async (
   req: Request,
   res: Response,
@@ -52,7 +43,7 @@ export const jwtParse = async (
       return;
     }
 
-    req.auth0Id = auth0Id as string;
+    req.auth0Id = auth0Id;
     req.userId = user._id.toString();
     next();
   } catch (error) {
