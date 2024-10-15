@@ -8,8 +8,8 @@ const createMyRestaurant = async (
   res: Response,
 ): Promise<void> => {
   try {
-    console.log('Request Body:', req.body);
-    console.log('Request File:', req.file);
+    // console.log('Request Body:', req.body);
+    // console.log('Request File:', req.file);
     // 检查用户是否已有餐厅
     const existingRestaurants = await Restaurant.findOne({ user: req.userId });
     if (existingRestaurants) {
@@ -48,4 +48,18 @@ const createMyRestaurant = async (
   }
 };
 
-export default { createMyRestaurant };
+const getMyRestaurant = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const restaurant = await Restaurant.findOne({ user: req.userId });
+    if (!restaurant) {
+      res.status(404).json({ message: 'Restaurant not found.' });
+      return;
+    }
+    res.json(restaurant);
+  } catch (error) {
+    console.log('Error', error);
+    res.status(500).json({ message: 'Error fetching restaurant.' });
+  }
+};
+
+export default { createMyRestaurant, getMyRestaurant };
