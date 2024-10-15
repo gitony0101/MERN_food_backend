@@ -3,7 +3,7 @@ import multer from 'multer';
 import MyRestaurantController from '../controllers/MyRestaurantController';
 import { jwtCheck } from '../middleware/jwtCheck.middleware';
 import { jwtParse } from '../middleware/jwtParse.middleware';
-import { validateRestaurantRequest } from '../middleware/validation';
+import { validateMyRestaurantRequest } from '../middleware/validation';
 
 const router = express.Router();
 
@@ -11,13 +11,13 @@ const router = express.Router();
 const storage = multer.memoryStorage();
 const upload = multer({
   storage: storage,
-  limits: { fileSize: 5 * 1024 * 1024 },
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5mb
 });
 
 // api/my/restaurant
 router.post(
   '/',
-  validateRestaurantRequest,
+  validateMyRestaurantRequest,
   jwtCheck,
   jwtParse,
   upload.single('imageFile'),
