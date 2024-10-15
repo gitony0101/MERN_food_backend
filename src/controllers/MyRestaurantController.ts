@@ -8,6 +8,8 @@ const createMyRestaurant = async (
   res: Response,
 ): Promise<void> => {
   try {
+    console.log('Request Body:', req.body);
+    console.log('Request File:', req.file);
     // 检查用户是否已有餐厅
     const existingRestaurants = await Restaurant.findOne({ user: req.userId });
     if (existingRestaurants) {
