@@ -21,6 +21,9 @@ const createMyRestaurant = async (
       res.status(409).json({ message: 'User restaurant already exists.' });
       return;
     }
+    // Log body and file to check if data is coming through correctly
+    console.log('Request Body:', req.body);
+    console.log('Request File:', req.file);
 
     if (!req.file) {
       res.status(400).json({ message: 'No image file uploaded.' });

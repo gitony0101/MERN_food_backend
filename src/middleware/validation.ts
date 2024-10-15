@@ -34,7 +34,7 @@ export const validateMyUserRequest: RequestHandler[] = [
   handleValidationErrors, // 使用修正后的错误处理函数
 ];
 
-export const validateMyRestaurantRequest: RequestHandler[] = [
+export const validateMyRestaurantRequest = [
   body('restaurantName').notEmpty().withMessage('Restaurant name is required'),
   body('city').notEmpty().withMessage('City is required'),
   body('country').notEmpty().withMessage('Country is required'),

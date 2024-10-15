@@ -29,6 +29,7 @@ export const jwtParse = async (
 
   try {
     const decoded = jwt.decode(token) as jwt.JwtPayload;
+    console.log('Decoded JWT:', decoded); // 打印解码后的 JWT
 
     if (!decoded || typeof decoded.sub !== 'string') {
       res.status(401).json({ message: 'Invalid token' });
