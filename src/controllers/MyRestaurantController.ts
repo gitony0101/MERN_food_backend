@@ -3,84 +3,86 @@ import Restaurant from '../models/restaurant';
 import cloudinary from 'cloudinary';
 import mongoose from 'mongoose';
 
+// Helper function to upload image to Cloudinary
 const uploadImage = async (file: Express.Multer.File) => {
   const image = file;
-  const base64Image = Buffer.from(image.buffer).toString('base64');
-  const dataURI = `data:${image.mimetype};base64,${base64Image}`;
-  const uploadResponse = await cloudinary.v2.uploader.upload(dataURI);
-  return uploadResponse.url;
+  const base64Image = Buffer.from(image.buffer).toString('base64'); // Convert image buffer to base64 string
+  const dataURI = `data:${image.mimetype};base64,${base64Image}`; // Create a Data URI with base64-encoded image
+  const uploadResponse = await cloudinary.v2.uploader.upload(dataURI); // Upload the image to Cloudinary
+  return uploadResponse.url; // Return the URL of the uploaded image
 };
 
+// Function to create a new restaurant
 const createMyRestaurant = async (
   req: Request,
   res: Response,
 ): Promise<void> => {
   try {
-    // console.log('Request Body:', req.body);
-    // console.log('Request File:', req.file);
-    // 检查用户是否已有餐厅
+    // Check if the user already has a restaurant
     const existingRestaurants = await Restaurant.findOne({ user: req.userId });
     if (existingRestaurants) {
       res.status(409).json({ message: 'User restaurant already exists.' });
-      return; // 确保函数在这里结束
+      return; // Stop the function execution if restaurant exists
     }
 
-    // 检查文件是否存在
+    // Check if an image file is provided in the request
     if (!req.file) {
       res.status(400).json({ message: 'No image file uploaded.' });
-      return; // 确保函数在这里结束
+      return; // Stop the function execution if no file is provided
     }
 
-    // // 处理图片上传
-    // const image = req.file as Express.Multer.File;
-    // const base64Image = Buffer.from(image.buffer).toString('base64');
-    // const dataURI = `data:${image.mimetype};base64,${base64Image}`;
-    // const uploadResponse = await cloudinary.v2.uploader.upload(dataURI);
+    // Upload the image using the helper function
     const imageUrl = await uploadImage(req.file as Express.Multer.File);
 
-    // 创建新餐厅
+    // Create a new restaurant object with data from the request
     const restaurant = new Restaurant({
-      ...req.body,
-      imageUrl: imageUrl,
-      user: new mongoose.Types.ObjectId(req.userId),
-      lastUpdated: new Date(),
+      ...req.body, // Spread the body to populate fields like name, city, etc.
+      imageUrl: imageUrl, // Add the uploaded image URL
+      user: new mongoose.Types.ObjectId(req.userId), // Set the user ID for the restaurant
+      lastUpdated: new Date(), // Set the last updated time
     });
 
-    // 保存餐厅
+    // Save the new restaurant to the database
     await restaurant.save();
 
-    // 返回创建成功的响应
+    // Send a success response with the created restaurant
     res.status(201).json(restaurant);
   } catch (error) {
-    console.error('Error creating restaurant:', error);
-    res.status(500).json({ message: 'Something went wrong.' });
+    console.error('Error creating restaurant:', error); // Log any errors to the console
+    res.status(500).json({ message: 'Something went wrong.' }); // Send a generic error response
   }
 };
 
+// Function to get the user's restaurant
 const getMyRestaurant = async (req: Request, res: Response): Promise<void> => {
   try {
+    // Find the restaurant by user ID
     const restaurant = await Restaurant.findOne({ user: req.userId });
     if (!restaurant) {
       res.status(404).json({ message: 'Restaurant not found.' });
-      return;
+      return; // Stop the function if no restaurant is found
     }
-    res.json(restaurant);
+    res.json(restaurant); // Return the found restaurant
   } catch (error) {
-    console.log('Error', error);
-    res.status(500).json({ message: 'Error fetching restaurant.' });
+    console.log('Error', error); // Log any errors
+    res.status(500).json({ message: 'Error fetching restaurant.' }); // Send a generic error response
   }
 };
 
+// Function to update the user's restaurant
 const updateMyRestaurant = async (
   req: Request,
   res: Response,
 ): Promise<void> => {
   try {
+    // Find the restaurant by user ID
     const restaurant = await Restaurant.findOne({ user: req.userId });
     if (!restaurant) {
       res.status(404).json({ message: 'Restaurant not found.' });
-      return;
+      return; // Stop the function if no restaurant is found
     }
+
+    // Update the restaurant fields with the data from the request
     restaurant.restaurantName = req.body.restaurantName;
     restaurant.city = req.body.city;
     restaurant.country = req.body.country;
@@ -88,17 +90,22 @@ const updateMyRestaurant = async (
     restaurant.estimatedDeliveryTime = req.body.estimatedDeliveryTime;
     restaurant.cuisines = req.body.cuisines;
     restaurant.menuItems = req.body.menuItems;
-    restaurant.lastUpdated = new Date();
+    restaurant.lastUpdated = new Date(); // Update the last updated time
 
+    // If a new image file is uploaded, upload it to Cloudinary and update the imageUrl
     if (req.file) {
       const imageUrl = await uploadImage(req.file as Express.Multer.File);
       restaurant.imageUrl = imageUrl;
     }
+
+    // Save the updated restaurant in the database
     await restaurant.save();
+
+    // Send a success response with the updated restaurant
     res.status(200).send(restaurant);
   } catch (error) {
-    console.log('error', error);
-    res.status(500).json({ message: 'Something went wrong.' });
+    console.log('error', error); // Log any errors
+    res.status(500).json({ message: 'Something went wrong.' }); // Send a generic error response
   }
 };
 
