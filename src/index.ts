@@ -5,6 +5,7 @@ import mongoose from 'mongoose';
 import myUserRoute from './routes/MyUserRoute';
 import myRestaurantRoute from './routes/MyRestaurantRoute';
 import { v2 as cloudinary } from 'cloudinary';
+import RestaurantRoute from './routes/RestaurantRoute';
 
 // Connect to MongoDB database using the connection string from environment variables
 mongoose
@@ -36,6 +37,7 @@ app.use('/api/my/user', myUserRoute);
 
 // Register restaurant-related routes, all starting with /api/my/restaurant
 app.use('/api/my/restaurant', myRestaurantRoute);
+app.use('/api/restaurant', RestaurantRoute);
 
 // Start the server on the specified port and log a message
 app.listen(port, () => console.log(`Server started on localhost:${port}`));
