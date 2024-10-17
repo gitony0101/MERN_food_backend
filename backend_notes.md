@@ -1,5 +1,3 @@
-manage restaurant db fully works
-
 ```javascript
 restaurant.restaurantName = req.body.restaurantName;
 restaurant.city = req.body.city;
@@ -54,3 +52,5 @@ if (selectedCuisines) {
   };
 }
 ```
+
+app.use('/api/restaurant', RestaurantRoute); Do not miss that "/"
