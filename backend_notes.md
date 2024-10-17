@@ -1,4 +1,6 @@
-```javascript
+### Backend notes
+
+```js
 restaurant.restaurantName = req.body.restaurantName;
 restaurant.city = req.body.city;
 restaurant.country = req.body.country;
@@ -9,7 +11,7 @@ restaurant.menuItems = req.body.menuItems;
 restaurant.lastUpdated = new Date();
 ```
 
-```javascript
+```js
 Object.assign(restaurant, {
   restaurantName: req.body.restaurantName,
   city: req.body.city,
@@ -24,7 +26,7 @@ Object.assign(restaurant, {
 
 ？？？
 
-```javascript
+```js
 restaurant = {
   ...restaurant, // 保留 restaurant 对象原有的属性
   ...req.body, // 使用 req.body 中的新值更新相应的属性
@@ -34,7 +36,7 @@ restaurant = {
 
 等价精简：
 
-```javascript
+```js
 if (selectedCuisines) {
   const cuisinesArray = selectedCuisines
     .split(',')
@@ -43,7 +45,7 @@ if (selectedCuisines) {
 }
 ```
 
-```javascript
+```js
 if (selectedCuisines) {
   query['cuisines'] = {
     $all: selectedCuisines
