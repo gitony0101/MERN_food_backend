@@ -6,6 +6,7 @@ import myUserRoute from './routes/MyUserRoute';
 import myRestaurantRoute from './routes/MyRestaurantRoute';
 import { v2 as cloudinary } from 'cloudinary';
 import RestaurantRoute from './routes/RestaurantRoute';
+import orderRoute from './routes/OrderRoute';
 
 // Connect to MongoDB database using the connection string from environment variables
 mongoose
@@ -20,24 +21,20 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-// Create an express app
 const app = express();
-const port = process.env.PORT; // Retrieve port number from environment variables
+const port = process.env.PORT;
 
-app.use(express.json()); // Use built-in express middleware to parse JSON requests
-app.use(cors()); // Enable CORS for all routes
+app.use(express.json());
+app.use(cors());
 
-// Simple health check route to verify server is running, often used in deployment testing
 app.get('/health', async (req: Request, res: Response) => {
-  res.send({ message: 'Health OK!' }); // Send a success message if the server is running
+  res.send({ message: 'Health OK!' }); // Send a success
 });
 
-// Register user-related routes, all starting with /api/my/user
 app.use('/api/my/user', myUserRoute);
 
-// Register restaurant-related routes, all starting with /api/my/restaurant
 app.use('/api/my/restaurant', myRestaurantRoute);
 app.use('/api/restaurant', RestaurantRoute);
+app.use('/api/order', orderRoute);
 
-// Start the server on the specified port and log a message
 app.listen(port, () => console.log(`Server started on localhost:${port}`));
