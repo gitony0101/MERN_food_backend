@@ -1,7 +1,8 @@
 import express from 'express';
+
+import OrderController from '../controllers/OrderController';
 import { jwtCheck } from '../middleware/jwtCheck.middleware';
 import { jwtParse } from '../middleware/jwtParse.middleware';
-import OrderController from '../controllers/OrderController';
 
 const router = express.Router();
 
