@@ -24,7 +24,9 @@ cloudinary.config({
 const app = express();
 const port = process.env.PORT;
 
-app.use(express.json());
+app.use('/api/order/checkout/webhook', express.raw({ type: '*/*' })); // before app.use(express.json());
+
+app.use(express.json()); //after app.use('/api/order/checkout/webhook'...) the stripe api
 app.use(cors());
 
 app.get('/health', async (req: Request, res: Response) => {

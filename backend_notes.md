@@ -24,8 +24,6 @@ Object.assign(restaurant, {
 });
 ```
 
-？？？
-
 ```js
 restaurant = {
   ...restaurant, 
@@ -55,4 +53,21 @@ if (selectedCuisines) {
 }
 ```
 
+
+
 app.use('/api/restaurant', RestaurantRoute); Do not miss that "/"
+
+
+
+### Stripe
+
+
+```
+stripe login
+
+stripe listen --forward-to localhost:5100/api/order/checkout/webhook
+
+stripe trigger checkout.session.completed
+```
+
+
