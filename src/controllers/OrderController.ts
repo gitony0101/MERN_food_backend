@@ -1,6 +1,8 @@
 import Stripe from 'stripe';
 import { Request, Response } from 'express';
 import Restaurant, { MenuItemType } from '../models/restaurant';
+import Order from '../models/order';
+import 'dotenv/config';
 
 const STRIPE = new Stripe(process.env.STRIPE_API_KEY as string);
 const FRONTEND_URL = process.env.FRONTEND_URL as string;
@@ -24,17 +26,14 @@ const createLineItems = (
   checkoutSessionRequest: CheckoutSessionRequest,
   menuItems: MenuItemType[],
 ) => {
-  // 1. foreach cartitem, get the menuItem object from the restaurant
-  // (to get the price)
   const lineItems = checkoutSessionRequest.cartItems.map((cartItem) => {
     const menuItem = menuItems.find(
       (item) => item._id.toString() === cartItem.menuItemId.toString(),
     );
     if (!menuItem) {
-      throw new Error(`Menu item not found:${cartItem.menuItemId}`);
+      throw new Error(`Menu item not found: ${cartItem.menuItemId}`);
     }
 
-    // 2. foreach cartItem, convert it to a stripe line item
     const line_item: Stripe.Checkout.SessionCreateParams.LineItem = {
       price_data: {
         currency: 'cad',
@@ -45,7 +44,6 @@ const createLineItems = (
       },
       quantity: parseInt(cartItem.quantity),
     };
-    // 3. return line item array
     return line_item;
   });
   return lineItems;
@@ -94,6 +92,20 @@ const createCheckoutSession = async (
     if (!restaurant) {
       throw new Error('Restaurant not found');
     }
+
+    const newOrder = new Order({
+      restaurant: restaurant._id,
+      user: req.userId,
+      status: 'placed',
+      deliveryDetails: checkoutSessionRequest.deliveryDetails,
+      cartItems: checkoutSessionRequest.cartItems.map((item) => ({
+        menuId: item.menuItemId,
+        name: item.name,
+        quantity: item.quantity,
+      })),
+      createdAt: new Date(),
+    });
+
     const lineItems = createLineItems(
       checkoutSessionRequest,
       restaurant.menuItems,
@@ -101,17 +113,22 @@ const createCheckoutSession = async (
 
     const session = await createSession(
       lineItems,
-      'TEST_ORDER_ID',
+      newOrder._id.toString(),
       restaurant.deliveryPrice,
       restaurant._id.toString(),
     );
+
     if (!session.url) {
+      console.error('Stripe session creation failed', session);
       res.status(500).json({ message: 'Error creating stripe session' });
+      return;
     }
+
+    await newOrder.save();
     res.json({ url: session.url });
   } catch (error: any) {
-    console.log(error);
-    res.status(500).json({ message: error.raw.message });
+    console.error(error);
+    res.status(500).json({ message: error.message || 'Something went wrong' });
   }
 };
 
