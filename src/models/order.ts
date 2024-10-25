@@ -3,10 +3,10 @@ import mongoose from 'mongoose';
 const orderSchema = new mongoose.Schema({
   restaurant: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'restaurant',
+    ref: 'Restaurant',
     required: true,
   },
-  user: { type: mongoose.Schema.Types.ObjectId, ref: 'user', required: true },
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   deliveryDetails: {
     email: { type: String, required: true },
     name: { type: String, required: true },
