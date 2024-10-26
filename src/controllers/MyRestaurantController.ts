@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import Restaurant from '../models/restaurant';
 import cloudinary from 'cloudinary';
 import mongoose from 'mongoose';
+import Order from '../models/order';
 
 // Helper function to upload image to Cloudinary
 const uploadImage = async (file: Express.Multer.File) => {
@@ -109,4 +110,56 @@ const updateMyRestaurant = async (
   }
 };
 
-export default { createMyRestaurant, getMyRestaurant, updateMyRestaurant };
+const getMyRestaurantOrders = async (req: Request, res: Response) => {
+  try {
+    const restaurant = await Restaurant.findOne({ user: req.userId });
+    if (!restaurant) {
+      res.status(404).json({ message: 'Restaurant not found' });
+      return; // Stop the function if no restaurant is found
+    }
+    const orders = await Order.find({ restaurant: restaurant._id })
+      .populate('restaurant')
+      .populate('user');
+
+    res.json(orders);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: 'Something went wrong.' });
+  }
+};
+
+const updateOrderStatus = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  const { orderId } = req.params;
+  const { status } = req.body;
+
+  const order = await Order.findById(orderId);
+  if (!order) {
+    res.status(404).json({ message: 'Order not found' });
+    return;
+  }
+  const restaurant = await Restaurant.findById(order.restaurant);
+  if (restaurant?.user?._id.toString() !== req.userId) {
+    res.status(401).send();
+    return;
+  }
+  order.status = status;
+  await order.save();
+  res.status(200).json(order);
+
+  try {
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: 'Unable t oupdate order status' });
+  }
+};
+
+export default {
+  createMyRestaurant,
+  getMyRestaurant,
+  updateMyRestaurant,
+  getMyRestaurantOrders,
+  updateOrderStatus,
+};
