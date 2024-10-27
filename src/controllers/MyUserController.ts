@@ -1,29 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import User from '../models/user';
 
-// Get the current user based on the userId extracted from the JWT
-const getCurrentUser = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-): Promise<void> => {
-  try {
-    // Find the current user in the database using the userId from the JWT
-    const currentUser = await User.findOne({ _id: req.userId });
-    if (!currentUser) {
-      // If no user is found, return a 404 response
-      res.status(404).json({ message: 'User not found' });
-      return;
-    }
-    // Return the found user as JSON response
-    res.json(currentUser);
-  } catch (error) {
-    console.log(error); // Log any errors that occur during the database operation
-    res.status(500).json({ message: 'Something went wrong' }); // Return a 500 error if something goes wrong
-    next(error); // Pass the error to the next middleware for error handling
-  }
-};
-
 // Create a new user if the user does not exist
 const createCurrentUser = async (
   req: Request,
@@ -52,6 +29,29 @@ const createCurrentUser = async (
     res.status(201).json(newUser.toObject());
   } catch (error) {
     console.log(error); // Log any errors during the user creation process
+    next(error); // Pass the error to the next middleware for error handling
+  }
+};
+
+// Get the current user based on the userId extracted from the JWT
+const getCurrentUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    // Find the current user in the database using the userId from the JWT
+    const currentUser = await User.findOne({ _id: req.userId });
+    if (!currentUser) {
+      // If no user is found, return a 404 response
+      res.status(404).json({ message: 'User not found' });
+      return;
+    }
+    // Return the found user as JSON response
+    res.json(currentUser);
+  } catch (error) {
+    console.log(error); // Log any errors that occur during the database operation
+    res.status(500).json({ message: 'Something went wrong' }); // Return a 500 error if something goes wrong
     next(error); // Pass the error to the next middleware for error handling
   }
 };
