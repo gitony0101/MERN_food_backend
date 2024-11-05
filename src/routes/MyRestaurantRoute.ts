@@ -19,6 +19,7 @@ router.get(
   MyRestaurantController.getMyRestaurantOrders,
 );
 
+// update order status
 router.patch(
   '/order/:orderId/status',
   jwtCheck,

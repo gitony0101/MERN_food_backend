@@ -30,7 +30,7 @@ app.use(express.json()); //after app.use('/api/order/checkout/webhook'...) the s
 app.use(cors());
 
 app.get('/health', async (req: Request, res: Response) => {
-  res.send({ message: 'Health OK!' }); // Send a success
+  res.send({ message: 'Health OK!' });
 });
 
 app.use('/api/my/user', myUserRoute);
